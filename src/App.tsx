@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
-const App: React.FC = () => {
-  return <div>hoge</div>
-}
+import Tips from "./components/tips";
+
+const App: React.FC = () => <Tips />;
 
 export default App;
