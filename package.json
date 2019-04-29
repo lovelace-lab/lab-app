@@ -34,6 +34,7 @@
     ]
   },
   "devDependencies": {
+    "jest-localstorage-mock": "^2.4.0",
     "ts-jest": "^24.0.2"
   }
 }

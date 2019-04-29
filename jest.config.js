@@ -11,5 +11,7 @@ module.exports = {
   testMatch: ['**/src/**/*.test.(ts|tsx|js)'],
   testPathIgnorePatterns: ['/node_modules/'],
   preset: 'ts-jest',
-  // setupFiles: ['jest-localstorage-mock', 'jest-date-mock']
+  setupFiles: ['jest-localstorage-mock']
 }
+
+//, 'jest-date-mock'
