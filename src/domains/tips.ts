@@ -10,6 +10,10 @@ export interface TipsRepositoryPort {
   findAll: () => Promise<Tips[]>;
 }
 
+export interface TipsPort {
+  setAllTips: (allTips: Tips[]) => void;
+}
+
 const createId = () => "hoge";
 
 export const addTips = (
@@ -18,5 +22,15 @@ export const addTips = (
 ) => {
   tipsRepositoryPort.save(createId(), message);
 };
+
+export const fetchAllTips = async (
+  tipsRepositoryPort: TipsRepositoryPort,
+  tipsPort: TipsPort
+) => {
+  const allTips = await tipsRepositoryPort.findAll();
+  tipsPort.setAllTips(allTips);
+};
+
+
 
 // export const updateTips = (id: string, message: string)
