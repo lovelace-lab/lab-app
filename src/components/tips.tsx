@@ -3,7 +3,7 @@ import { addTips } from '../domains/tips';
 import { createTipsLocalStorage } from '../adapters/local-storage'
 
 const Tips: React.FC = () => {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('aaaa')
   function handleChange(text: string) {
     setValue(text)
   }
