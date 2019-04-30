@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { addTips } from '../domains/tips';
 import { createTipsLocalStorage } from '../adapters/local-storage'
 
@@ -8,11 +8,11 @@ const Tips: React.FC = () => {
     setValue(text)
   }
 
-  function handleSubmit(event: React.FormEvent) {
-    const tipsLocalStorage = createTipsLocalStorage();
-    addTips(tipsLocalStorage, value)
+  const handleSubmit = useCallback((event: React.FormEvent) => {
+    const tipsRepositoryPort = createTipsLocalStorage();
+    addTips(tipsRepositoryPort, value)
     event.preventDefault()
-  }
+  }, [value])
 
   return <form onSubmit={handleSubmit}>
     <input type="text" value={value} onChange={e => handleChange(e.target.value)} />
