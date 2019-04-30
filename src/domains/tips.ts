@@ -14,6 +14,8 @@ export interface TipsPort {
   setAllTips: (allTips: Tips[]) => void;
 }
 
+export type Port = Partial<TipsRepositoryPort | TipsPort>
+
 const createId = () => "hoge";
 
 export const addTips = (
