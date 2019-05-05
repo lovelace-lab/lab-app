@@ -1,4 +1,6 @@
-type Serializable =
+import { SearchParamFilter, SearchParamOrder } from "./search";
+
+export type Serializable =
   | string
   | Buffer
   | number
@@ -16,26 +18,42 @@ export interface Data<T extends Serializable, U extends Serializable> {
   metadata?: U;
 }
 
+export interface History<T extends Serializable> {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  metadata: T;
+}
+
 export interface DataRepositoryPort<
   T extends Serializable,
   U extends Serializable
 > {
   create: (payload: T, metadata: U) => Promise<void>;
+
   update: (id: string, payload: T, metadata: U) => Promise<void>;
+
   changeByCheckpoint: (id: string, checkpointId: string) => Promise<void>;
+
   fetchHistories: (
     id: string,
     offset?: number,
     max?: number
+  ) => Promise<History<U>[]>;
+
+  search: (
+    filter: SearchParamFilter,
+    order: SearchParamOrder
   ) => Promise<Data<T, U>[]>;
-  search: () => Promise<Data<T, U>[]>;
 }
 
 export interface DataPresentationPort<
   T extends Serializable,
   U extends Serializable
 > {
-  setHistories: (histories: Data<T, U>[]) => void;
+  setHistories: (histories: History<U>[]) => void;
+  setDataSingle: (data: Data<T, U>) => void;
+  setDataArray: (data: Data<T, U>[]) => void;
 }
 
 type TuppleToUnion<T> = T extends (infer U)[] ? U : never;
@@ -43,8 +61,11 @@ type TuppleToUnion<T> = T extends (infer U)[] ? U : never;
 type Port<
   T extends Serializable,
   U extends Serializable,
-  K extends [keyof DataRepositoryPort<T, U>]
-> = Pick<DataRepositoryPort<T, U>, TuppleToUnion<K>>;
+  K extends Array<keyof (DataRepositoryPort<T, U> & DataPresentationPort<T, U>)>
+> = Pick<
+  DataRepositoryPort<T, U> & DataPresentationPort<T, U>,
+  TuppleToUnion<K>
+>;
 
 export const createData = async <
   T extends Serializable,
@@ -74,15 +95,25 @@ export const updateData = async <
 export const fetchDataHistories = async <
   T extends Serializable,
   U extends Serializable,
-  P extends Port<T, U, ["fetchHistories"]>
+  P extends Port<T, U, ["fetchHistories", "setHistories"]>
 >(
-  { fetchHistories }: P,
+  { fetchHistories, setHistories }: P,
   id: string,
   offset?: number,
   max?: number
 ) => {
   const histories = await fetchHistories(id, offset, max);
-  // setHistories(histories)
+  await setHistories(histories);
 };
 
-export const changeDataCheckpoint = () => {};
+export const changeDataCheckpoint = async <
+  T extends Serializable,
+  U extends Serializable,
+  P extends Port<T, U, ["changeByCheckpoint"]>
+>(
+  { changeByCheckpoint }: P,
+  id: string,
+  checkpointId: string
+) => {
+  await changeByCheckpoint(id, checkpointId);
+};
