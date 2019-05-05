@@ -1,4 +1,9 @@
-import { createData, updateData } from "./data";
+import {
+  createData,
+  updateData,
+  fetchDataHistories,
+  changeDataCheckpoint
+} from "./data";
 
 describe("createData", () => {
   test("", async () => {
@@ -27,3 +32,49 @@ describe("updateData", () => {
   });
 });
 
+describe("fetchDataHistories", () => {
+  test("offsetとmaxを省略", async () => {
+    const id = "hoge";
+    const createdAt = new Date(0);
+    const updatedAt = new Date(1);
+
+    const fetchHistories = jest.fn().mockImplementation(() => {
+      return Promise.resolve([
+        {
+          id,
+          createdAt,
+          updatedAt,
+          metadata: { hoge: "hoge" }
+        }
+      ]);
+    });
+
+    const setHistories: any = jest.fn();
+
+    await fetchDataHistories({ fetchHistories, setHistories }, id);
+    expect(fetchHistories.mock.calls.length).toBe(1);
+    expect(fetchHistories.mock.calls[0]).toEqual([id, undefined, undefined]);
+    expect(setHistories.mock.calls.length).toBe(1);
+    expect(setHistories.mock.calls[0][0]).toEqual([
+      {
+        id,
+        createdAt,
+        updatedAt,
+        metadata: { hoge: "hoge" }
+      }
+    ]);
+  });
+});
+
+describe("changeDataCheckpoint", () => {
+  test("", async () => {
+    const id = "hoge";
+    const checkpointId = "fuga";
+
+    const changeByCheckpoint = jest.fn();
+    await changeDataCheckpoint({ changeByCheckpoint }, id, checkpointId);
+    expect(changeByCheckpoint.mock.calls.length).toBe(1);
+    expect(changeByCheckpoint.mock.calls[0][0]).toEqual(id);
+    expect(changeByCheckpoint.mock.calls[0][1]).toEqual(checkpointId);
+  });
+});
