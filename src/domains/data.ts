@@ -1,4 +1,4 @@
-import { SearchParamFilter, SearchParamOrder } from "./search";
+import { SearchParamFilter, SearchParamOrder } from "./entities/search";
 
 export type Serializable =
   | string
