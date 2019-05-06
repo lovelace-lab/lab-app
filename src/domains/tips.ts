@@ -1,38 +1,13 @@
-export interface Tips {
-  id: string;
-  message: string;
+import { createData, searchData, updateData } from "./data";
+
+export const addTips = (port: any, message: string) => {
+  createData(port, message)
 }
 
-export interface TipsRepositoryPort {
-  // データを保存するためのポート、Repositoryパターン
-  save: (id: string, message: string) => Promise<void>;
-  findById: (id: string) => Promise<Tips>;
-  findAll: () => Promise<Tips[]>;
+export const fetchAllTips = (port: any) => {
+  searchData(port, [], [])
 }
 
-export interface TipsPort {
-  setAllTips: (allTips: Tips[]) => void;
+export const updateTips = (port: any, id: string, message: string) => {
+  updateData(port, id, message)
 }
-
-export type Port = Partial<TipsRepositoryPort | TipsPort>
-
-const createId = () => "hoge";
-
-export const addTips = (
-  tipsRepositoryPort: TipsRepositoryPort,
-  message: string
-) => {
-  tipsRepositoryPort.save(createId(), message);
-};
-
-export const fetchAllTips = async (
-  tipsRepositoryPort: TipsRepositoryPort,
-  tipsPort: TipsPort
-) => {
-  const allTips = await tipsRepositoryPort.findAll();
-  tipsPort.setAllTips(allTips);
-};
-
-
-
-// export const updateTips = (id: string, message: string)

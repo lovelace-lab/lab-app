@@ -1,6 +1,6 @@
 import { createHash } from "../util";
 
-export type ContentType = "text/plain";
+export type ContentType = "application/json";
 
 export interface Blob {
   id: string;

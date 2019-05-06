@@ -1,119 +1,97 @@
-import { SearchParamFilter, SearchParamOrder } from "./entities/search";
+import { Filter, Order } from "./search";
+import { DataRepositoryPort } from "./data-repository-port";
+import { DataPresentationPort } from "./data-presentation-port";
 
-export type Serializable =
-  | string
-  | Buffer
-  | number
-  | Date
-  | {
-      [props: string]: Serializable | Serializable[];
-    };
+type SerializableType = string | Buffer | number | Date;
+export type Serializable = SerializableType | {
+  [props: string]:
+    | Serializable
+    | Serializable[];
+};
 
-export interface Data<T extends Serializable, U extends Serializable> {
+export interface Data<T extends Serializable> {
   id: string;
   createdAt: Date;
   updatedAt: Date;
 
   payload?: T;
-  metadata?: U;
 }
 
-export interface History<T extends Serializable> {
+export interface Metadata {
   id: string;
+  blobId: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
-  metadata: T;
-}
-
-export interface DataRepositoryPort<
-  T extends Serializable,
-  U extends Serializable
-> {
-  create: (payload: T, metadata: U) => Promise<void>;
-
-  update: (id: string, payload: T, metadata: U) => Promise<void>;
-
-  changeByCheckpoint: (id: string, checkpointId: string) => Promise<void>;
-
-  fetchHistories: (
-    id: string,
-    offset?: number,
-    max?: number
-  ) => Promise<History<U>[]>;
-
-  search: (
-    filter: SearchParamFilter,
-    order: SearchParamOrder
-  ) => Promise<Data<T, U>[]>;
-}
-
-export interface DataPresentationPort<
-  T extends Serializable,
-  U extends Serializable
-> {
-  setHistories: (histories: History<U>[]) => void;
-  setDataSingle: (data: Data<T, U>) => void;
-  setDataArray: (data: Data<T, U>[]) => void;
 }
 
 type TuppleToUnion<T> = T extends (infer U)[] ? U : never;
 
 type Port<
   T extends Serializable,
-  U extends Serializable,
-  K extends Array<keyof (DataRepositoryPort<T, U> & DataPresentationPort<T, U>)>
+  K extends Array<keyof (DataRepositoryPort<T> & DataPresentationPort<T>)>
 > = Pick<
-  DataRepositoryPort<T, U> & DataPresentationPort<T, U>,
+  DataRepositoryPort<T> & DataPresentationPort<T>,
   TuppleToUnion<K>
 >;
 
+/**
+ * create new data on repository
+ */
 export const createData = async <
   T extends Serializable,
-  U extends Serializable,
-  P extends Port<T, U, ["create"]>
 >(
-  { create }: P,
-  payload: T,
-  metadata: U
+  port: Port<T, ["create"]>,
+  payload: T
 ) => {
-  await create(payload, metadata);
+  await port.create(payload);
 };
 
+/**
+ * update data on repository
+ */
 export const updateData = async <
   T extends Serializable,
-  U extends Serializable,
-  P extends Port<T, U, ["update"]>
 >(
-  { update }: P,
+  port: Port<T, ["update"]>,
   id: string,
-  payload: T,
-  metadata: U
+  payload: T
 ) => {
-  await update(id, payload, metadata);
+  await port.update(id, payload);
 };
 
-export const fetchDataHistories = async <
-  T extends Serializable,
-  U extends Serializable,
-  P extends Port<T, U, ["fetchHistories", "setHistories"]>
+/**
+ * fetch histories
+ */
+export const fetchHistories = async <
+  T extends Serializable
 >(
-  { fetchHistories, setHistories }: P,
+  port: Port<T, ["fetchHistories", "setHistories"]>,
   id: string,
   offset?: number,
   max?: number
 ) => {
-  const histories = await fetchHistories(id, offset, max);
-  await setHistories(histories);
+  const histories = await port.fetchHistories(id, offset, max);
+  await port.setHistories(histories);
 };
 
-export const changeDataCheckpoint = async <
+export const changeDataByCheckpoint = async <
   T extends Serializable,
-  U extends Serializable,
-  P extends Port<T, U, ["changeByCheckpoint"]>
 >(
-  { changeByCheckpoint }: P,
+  port: Port<T, ["changeDataByCheckpoint"]>,
   id: string,
   checkpointId: string
 ) => {
-  await changeByCheckpoint(id, checkpointId);
+  await port.changeDataByCheckpoint(id, checkpointId);
 };
+
+export const searchData = async <
+  T extends Serializable,
+>(
+  port: Port<T, ["search", "setDataArray"]>,
+  filters: Filter[],
+  orderes: Order[]
+) => {
+  const data = await port.search(filters, orderes)
+  await port.setDataArray(data)
+}

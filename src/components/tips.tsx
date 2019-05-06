@@ -1,6 +1,13 @@
 import React, { useState, useCallback, useEffect } from "react";
+import {css} from '@emotion/core'
+
 import { addTips, fetchAllTips, Tips, TipsPort } from '../domains/tips';
 import { createTipsLocalStorage } from '../adapters/local-storage'
+
+const buttonStyle = css`
+  background-color: #333;
+  color: #eee;
+`
 
 const TipsComponent: React.FC = () => {
   const [value, setValue] = useState('')
@@ -9,7 +16,7 @@ const TipsComponent: React.FC = () => {
     setValue(text)
   }
 
-  useEffect(() => { 
+  useEffect(() => {
     const tipsPort: TipsPort = {
       setAllTips: (tipses) => {
         setAllTips(tipses);
@@ -20,7 +27,12 @@ const TipsComponent: React.FC = () => {
   }, [])
 
   const handleSubmit = useCallback((event: React.FormEvent) => {
-    const tipsRepositoryPort = createTipsLocalStorage();
+    const tipsRepositoryPort = {
+      create: (payload: any, metadata: any) => {
+        console.log(payload)
+        console.log(metadata)
+      }
+    }
     addTips(tipsRepositoryPort, value)
     event.preventDefault()
   }, [value])
@@ -28,7 +40,7 @@ const TipsComponent: React.FC = () => {
   return <>
     <form onSubmit={handleSubmit}>
     <input type="text" value={value} onChange={e => handleChange(e.target.value)} />
-    <input type="submit" value="add" />
+    <input type="submit" value="add" css={buttonStyle} />
   </form>
   <ul>
     {
