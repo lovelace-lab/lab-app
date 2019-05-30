@@ -1,24 +1,10 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { addTips, fetchAllTips, Tips, TipsPort } from "../domains/tips";
-import { createTipsLocalStorage } from "../adapters/local-storage";
-import { useTipsList } from "../hooks/tips";
+import React from "react";
+
+import { useTipsInput, useTipsList } from "../hooks/tips";
 
 const TipsComponent: React.FC = () => {
-  const [value, setValue] = useState("");
+  const { value, handleChange, handleSubmit } = useTipsInput();
   const { allTips } = useTipsList();
-
-  function handleChange(text: string) {
-    setValue(text);
-  }
-
-  const handleSubmit = useCallback(
-    (event: React.FormEvent) => {
-      const tipsRepositoryPort = createTipsLocalStorage();
-      addTips(tipsRepositoryPort, value);
-      event.preventDefault();
-    },
-    [value]
-  );
 
   return (
     <>
@@ -32,7 +18,7 @@ const TipsComponent: React.FC = () => {
       </form>
       <ul>
         {allTips.map(tips => (
-          <li>{tips.message}</li>
+          <li key={tips.id}>{tips.message}</li>
         ))}
       </ul>
     </>
