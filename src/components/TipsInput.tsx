@@ -16,11 +16,6 @@ const TipsComponent: React.FC = () => {
         />
         <input type="submit" value="add" />
       </form>
-      <ul>
-        {allTips.map(tips => (
-          <li key={tips.id}>{tips.message}</li>
-        ))}
-      </ul>
     </>
   );
 };
