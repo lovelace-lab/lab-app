@@ -1,6 +1,6 @@
 import React from "react";
 
-import Tips from "./components/tips";
+import Tips from "./pages/Tips";
 
 const App: React.FC = () => <Tips />;
 

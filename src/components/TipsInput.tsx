@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from 'react';
 import { addTips, fetchAllTips, Tips, TipsPort } from '../domains/tips';
 import { createTipsLocalStorage } from '../adapters/local-storage'
 
